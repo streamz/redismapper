@@ -24,7 +24,7 @@ public class RedisDriver extends Configured implements Tool {
     public static final String REDIS_VAL_FILTER = "io.streamz.redismapper.redis.val.filter";
     private static final String REDIS_CMD = "-redis";
     private static final String INPUT_CMD = "-input";
-    private static final String KEY_CMD = "-pkey";
+    private static final String KEY_CMD = "-key";
     private static final String HASH_KEY_CMD = "-hkey";
     private static final String HASH_VAL_CMD = "-hval";
     private static final String KEY_FILTER_CMD = "-kf";
