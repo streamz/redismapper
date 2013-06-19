@@ -29,3 +29,4 @@ hadoop redismapper-1.0-SNAPSHOT-job.jar -redis=localhost:6379 -input=/users/myda
 
 the following would write 1 of the 2 records to redis in the following format:
 hset(12345,foo,1.37901)
+
