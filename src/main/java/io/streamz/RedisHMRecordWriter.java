@@ -8,11 +8,19 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
     private JedisPool pool;
-    public RedisHMRecordWriter(String host, int port) {
+    private final String lastUpdateKey;
+    private final int ttl;
+
+    public RedisHMRecordWriter(String host, int port, String lastUpdateKey, int ttl) {
         init(host, port, 5);
+        this.lastUpdateKey = lastUpdateKey;
+        this.ttl = ttl;
     }
 
     @Override
@@ -25,7 +33,15 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
     @Override
     public void close(TaskAttemptContext context)
         throws IOException, InterruptedException {
-        pool.destroy();
+        Jedis connection = null;
+        try {
+            connection = pool.getResource();
+            connection.set(lastUpdateKey, new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+        }
+        finally {
+            pool.returnResource(connection);
+            pool.destroy();
+        }
     }
 
     private void write(String key, String hkey, String payload) {
@@ -33,6 +49,9 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
         try {
             connection = pool.getResource();
             connection.hset(key, hkey, payload);
+            if (ttl > 0) {
+                connection.expire(key, ttl);
+            }
         }
         finally {
             pool.returnResource(connection);

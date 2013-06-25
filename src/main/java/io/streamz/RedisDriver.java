@@ -22,6 +22,8 @@ public class RedisDriver extends Configured implements Tool {
     public static final String REDIS_KEY_FILTER = "io.streamz.redismapper.redis.key.filter";
     public static final String REDIS_HASH_FILTER = "io.streamz.redismapper.redis.hash.filter";
     public static final String REDIS_VAL_FILTER = "io.streamz.redismapper.redis.val.filter";
+    public static final String REDIS_KEY_TTL = "io.streamz.redismapper.redis.key.ttl";
+    public static final String REDIS_KEY_TS = "io.streamz.redismapper.redis.key.ts";
     private static final String REDIS_CMD = "-redis";
     private static final String INPUT_CMD = "-input";
     private static final String KEY_CMD = "-key";
@@ -30,6 +32,8 @@ public class RedisDriver extends Configured implements Tool {
     private static final String KEY_FILTER_CMD = "-kf";
     private static final String HASH_FILTER_CMD = "-hf";
     private static final String VAL_FILTER_CMD = "-vf";
+    private static final String TTL_CMD = "-ttl";
+    private static final String TS_KEY_CMD = "-tsk";
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(new Configuration(), new RedisDriver(), args);
@@ -72,6 +76,18 @@ public class RedisDriver extends Configured implements Tool {
         if (argMap.containsKey(VAL_FILTER_CMD)) {
             conf.setPattern(REDIS_VAL_FILTER, Pattern.compile(argMap.get(VAL_FILTER_CMD).trim()));
         }
+        if (argMap.containsKey(VAL_FILTER_CMD)) {
+            conf.setPattern(REDIS_VAL_FILTER, Pattern.compile(argMap.get(VAL_FILTER_CMD).trim()));
+        }
+        if (argMap.containsKey(TTL_CMD)) {
+            conf.setInt(REDIS_KEY_TTL, Integer.valueOf(argMap.get(TTL_CMD).trim()));
+        }
+        if (argMap.containsKey(TS_KEY_CMD)) {
+            conf.set(REDIS_KEY_TS, argMap.get(TS_KEY_CMD).trim());
+        }
+        else {
+            conf.set(REDIS_KEY_TS, "redis.lastupdate");
+        }
 
         Job job = new Job(conf, "RedisDriver");
         FileInputFormat.addInputPath(job, new Path(argMap.get(INPUT_CMD)));
@@ -93,7 +109,9 @@ public class RedisDriver extends Configured implements Tool {
             KEY_CMD + " <int> " +
             HASH_KEY_CMD + " <int> " +
             HASH_VAL_CMD + " <int> " +
-            INPUT_CMD + " <path> ");
+            INPUT_CMD + " <path> " +
+            TTL_CMD + " <ttl in seconds> " +
+            TS_KEY_CMD + " <key of last update timestamp> ");
         ToolRunner.printGenericCommandUsage(System.err);
     }
 }
