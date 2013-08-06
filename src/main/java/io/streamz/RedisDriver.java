@@ -1,6 +1,5 @@
 package io.streamz;
 
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
