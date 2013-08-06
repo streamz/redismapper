@@ -7,6 +7,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,8 +17,8 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
     private final String lastUpdateKey;
     private final int ttl;
 
-    public RedisHMRecordWriter(String host, int port, String lastUpdateKey, int ttl) {
-        init(host, port, 5);
+    public RedisHMRecordWriter(String host, int port, String pw, int db, String lastUpdateKey, int ttl) {
+        init(host, port, pw, db, 5);
         this.lastUpdateKey = lastUpdateKey;
         this.ttl = ttl;
     }
@@ -68,7 +69,7 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
         }
     }
 
-    private boolean init(String host, int port, long maxWait) {
+    private boolean init(String host, int port, String pw, int db, long maxWait) {
         try {
             JedisPoolConfig conf = new JedisPoolConfig();
             conf.setMaxWait(maxWait);
@@ -77,8 +78,7 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
 
             // 2 x the number of cores
             conf.setMaxActive(Runtime.getRuntime().availableProcessors() * 2);
-            this.pool = new JedisPool(conf, host, port);
-
+            this.pool = new JedisPool(conf, host, port, Protocol.DEFAULT_TIMEOUT, pw, db);
             return ping();
         }
         catch (Exception ex) {

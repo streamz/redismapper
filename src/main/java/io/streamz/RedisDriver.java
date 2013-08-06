@@ -1,5 +1,6 @@
 package io.streamz;
 
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -16,6 +17,8 @@ import java.util.regex.Pattern;
 public class RedisDriver extends Configured implements Tool {
     public static final String REDIS_HOST = "io.streamz.redismapper.redis.host";
     public static final String REDIS_PORT = "io.streamz.redismapper.redis.port";
+    public static final String REDIS_DB = "io.streamz.redismapper.redis.database";
+    public static final String REDIS_PW = "io.streamz.redismapper.redis.password";
     public static final String REDIS_KEY_FIELD = "io.streamz.redismapper.redis.key.field";
     public static final String REDIS_HASHKEY_FIELD = "io.streamz.redismapper.redis.hash.key.field";
     public static final String REDIS_HASHVAL_FIELD = "io.streamz.redismapper.redis.hash.val.field";
@@ -26,6 +29,8 @@ public class RedisDriver extends Configured implements Tool {
     public static final String REDIS_KEY_TS = "io.streamz.redismapper.redis.key.ts";
     private static final String REDIS_CMD = "-redis";
     private static final String INPUT_CMD = "-input";
+    private static final String REDIS_PW_CMD = "-pw";
+    private static final String REDIS_DB_CMD = "-db";
     private static final String KEY_CMD = "-key";
     private static final String HASH_KEY_CMD = "-hkey";
     private static final String HASH_VAL_CMD = "-hval";
@@ -67,6 +72,12 @@ public class RedisDriver extends Configured implements Tool {
         conf.setInt(REDIS_HASHKEY_FIELD, Integer.valueOf(argMap.get(HASH_KEY_CMD).trim()));
         conf.setInt(REDIS_HASHVAL_FIELD, Integer.valueOf(argMap.get(HASH_VAL_CMD).trim()));
 
+        if (argMap.containsKey(REDIS_DB_CMD)) {
+            conf.set(REDIS_DB, argMap.get(REDIS_DB_CMD).trim());
+        }
+        if (argMap.containsKey(REDIS_PW_CMD)) {
+            conf.set(REDIS_PW, argMap.get(REDIS_PW_CMD).trim());
+        }
         if (argMap.containsKey(KEY_FILTER_CMD)) {
             conf.setPattern(REDIS_KEY_FILTER, Pattern.compile(argMap.get(KEY_FILTER_CMD).trim()));
         }
@@ -111,7 +122,9 @@ public class RedisDriver extends Configured implements Tool {
             HASH_VAL_CMD + " <int> " +
             INPUT_CMD + " <path> " +
             TTL_CMD + " <ttl in seconds> " +
-            TS_KEY_CMD + " <key of last update timestamp> ");
+            TS_KEY_CMD + " <key of last update timestamp> " +
+            REDIS_PW_CMD + " <optional password> " +
+            REDIS_DB_CMD + " <optional database, default is 0> ");
         ToolRunner.printGenericCommandUsage(System.err);
     }
 }
