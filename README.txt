@@ -14,6 +14,8 @@ required:
 -hval  <hashval>
 
 optional:
+-db    <integer for redis database, default is 0>
+-pw    <redis password, default is null>
 -kf    <regex that will exclude records with matching primary keys>
 -hf    <regex that will exclude records with matching hash keys>
 -vf    <regex that will exclude records with matching hash values>
