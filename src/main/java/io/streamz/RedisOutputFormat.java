@@ -11,13 +11,7 @@ public class RedisOutputFormat extends OutputFormat<Text, Text> {
     @Override
     public RecordWriter<Text, Text> getRecordWriter(TaskAttemptContext context)
         throws IOException, InterruptedException {
-        String host = context.getConfiguration().get(RedisDriver.REDIS_HOST);
-        int port = context.getConfiguration().getInt(RedisDriver.REDIS_PORT, 6379);
-        String updateKey = context.getConfiguration().get(RedisDriver.REDIS_KEY_TS);
-        String password = context.getConfiguration().get(RedisDriver.REDIS_PW, null);
-        int ttl = context.getConfiguration().getInt(RedisDriver.REDIS_KEY_TTL, 0);
-        int db = context.getConfiguration().getInt(RedisDriver.REDIS_DB, 0);
-        return new RedisHMRecordWriter(host, port, password, db, updateKey, ttl);
+        return new RedisHMRecordWriter(context.getConfiguration());
     }
 
     @Override

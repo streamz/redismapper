@@ -1,6 +1,7 @@
 package io.streamz;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -16,18 +17,29 @@ public class RedisHMRecordWriter extends RecordWriter<Text, Text> {
     private JedisPool pool;
     private final String lastUpdateKey;
     private final int ttl;
+    private final KeyMaker keyMaker;
 
-    public RedisHMRecordWriter(String host, int port, String pw, int db, String lastUpdateKey, int ttl) {
+    public RedisHMRecordWriter(Configuration conf) {
+        String host = conf.get(RedisDriver.REDIS_HOST);
+        int port = conf.getInt(RedisDriver.REDIS_PORT, 6379);
+        String pw = conf.get(RedisDriver.REDIS_PW, null);
+        int db = conf.getInt(RedisDriver.REDIS_DB, 0);
         init(host, port, pw, db, 5);
-        this.lastUpdateKey = lastUpdateKey;
-        this.ttl = ttl;
+
+        String pfx = conf.get(RedisDriver.REDIS_KEY_PREFIX);
+        String hkpfx = conf.get(RedisDriver.REDIS_HASHKEY_PREFIX);
+        String delim = conf.get(RedisDriver.REDIS_KEY_PREFIX_DELIM, ".");
+
+        this.keyMaker = new KeyMaker(pfx, hkpfx, delim);
+        this.lastUpdateKey = conf.get(RedisDriver.REDIS_KEY_TS);
+        this.ttl = conf.getInt(RedisDriver.REDIS_KEY_TTL, 0);
     }
 
     @Override
     public void write(Text text, Text tuple)
         throws IOException, InterruptedException {
         String[] kv = tuple.toString().split(",");
-        write(text.toString(), kv[0].trim(), kv[1].trim());
+        write(keyMaker.key(text.toString()), keyMaker.hkey(kv[0].trim()), kv[1].trim());
     }
 
     @Override

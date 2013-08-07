@@ -19,7 +19,10 @@ public class RedisDriver extends Configured implements Tool {
     public static final String REDIS_DB = "io.streamz.redismapper.redis.database";
     public static final String REDIS_PW = "io.streamz.redismapper.redis.password";
     public static final String REDIS_KEY_FIELD = "io.streamz.redismapper.redis.key.field";
+    public static final String REDIS_KEY_PREFIX = "io.streamz.redismapper.redis.key.prefix";
+    public static final String REDIS_KEY_PREFIX_DELIM = "io.streamz.redismapper.redis.key.prefix.delim";
     public static final String REDIS_HASHKEY_FIELD = "io.streamz.redismapper.redis.hash.key.field";
+    public static final String REDIS_HASHKEY_PREFIX = "io.streamz.redismapper.redis.hash.key.prefix";
     public static final String REDIS_HASHVAL_FIELD = "io.streamz.redismapper.redis.hash.val.field";
     public static final String REDIS_KEY_FILTER = "io.streamz.redismapper.redis.key.filter";
     public static final String REDIS_HASH_FILTER = "io.streamz.redismapper.redis.hash.filter";
@@ -31,7 +34,10 @@ public class RedisDriver extends Configured implements Tool {
     private static final String REDIS_PW_CMD = "-pw";
     private static final String REDIS_DB_CMD = "-db";
     private static final String KEY_CMD = "-key";
+    private static final String KEY_PFX_CMD = "-pkey";
+    private static final String KEY_PFX_DELIM_CMD = "-delim";
     private static final String HASH_KEY_CMD = "-hkey";
+    private static final String HASH_KEY_PFX_CMD = "-hpkey";
     private static final String HASH_VAL_CMD = "-hval";
     private static final String KEY_FILTER_CMD = "-kf";
     private static final String HASH_FILTER_CMD = "-hf";
@@ -76,6 +82,15 @@ public class RedisDriver extends Configured implements Tool {
         }
         if (argMap.containsKey(REDIS_PW_CMD)) {
             conf.set(REDIS_PW, argMap.get(REDIS_PW_CMD).trim());
+        }
+        if (argMap.containsKey(KEY_PFX_CMD)) {
+            conf.set(REDIS_KEY_PREFIX, argMap.get(KEY_PFX_CMD).trim());
+        }
+        if (argMap.containsKey(HASH_KEY_PFX_CMD)) {
+            conf.set(REDIS_HASHKEY_PREFIX, argMap.get(HASH_KEY_PFX_CMD).trim());
+        }
+        if (argMap.containsKey(KEY_PFX_DELIM_CMD)) {
+            conf.set(REDIS_KEY_PREFIX_DELIM, argMap.get(KEY_PFX_DELIM_CMD).trim());
         }
         if (argMap.containsKey(KEY_FILTER_CMD)) {
             conf.setPattern(REDIS_KEY_FILTER, Pattern.compile(argMap.get(KEY_FILTER_CMD).trim()));
@@ -123,7 +138,10 @@ public class RedisDriver extends Configured implements Tool {
             TTL_CMD + " <ttl in seconds> " +
             TS_KEY_CMD + " <key of last update timestamp> " +
             REDIS_PW_CMD + " <optional password> " +
-            REDIS_DB_CMD + " <optional database, default is 0> ");
+            REDIS_DB_CMD + " <optional database, default is 0> " +
+            KEY_PFX_CMD + " <optional primary key prefix ie: foo.key> " +
+            HASH_KEY_PFX_CMD + " <optional hash key prefix ie: foo.hkey> " +
+            KEY_PFX_DELIM_CMD + " <optional delimiter, used when concatenating a key prefix and a key, default is \".\"> ");
         ToolRunner.printGenericCommandUsage(System.err);
     }
 }
